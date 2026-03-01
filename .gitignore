@@ -1,0 +1,33 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Private keys and secrets
+*.pem
+*.key
+private_key*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Docker volumes
+data/
+ipfs_data/
+oarn_data*/
+
+# Logs
+*.log
+logs/
+
+# Build artifacts (subprojects have their own .gitignore)
+node_modules/
+target/
+
+# Config directories with secrets
+config-node2/
+config-node3/

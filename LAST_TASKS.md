@@ -1,0 +1,73 @@
+# OARN Network - Task Progress
+
+## Last Completed Tasks
+**Contract Test Coverage (2026-03-01)**
+- Created comprehensive test suite for TaskRegistryV2.sol (48 tests)
+- Created comprehensive test suite for Governance.sol (29 tests)
+- Fixed existing tests in TaskRegistry.test.ts and OARNRegistry.test.ts
+- Updated hardhat config for higher account balances (100k ETH for staking tests)
+- Total: 183 passing tests across all contracts
+
+**TaskRegistryV2 Integration (2026-02-28)**
+- Updated OARNRegistry.sol to support taskRegistryV2 (mutable, owner-settable)
+- Added getCoreContractsV2() view function to OARNRegistry
+- Redeployed OARNRegistry with TaskRegistryV2 support
+- Updated node BlockchainClient with V2 functions (claim_task_v2, submit_result_v2, get_available_tasks_v2)
+- New OARNRegistry Address: 0x1efe74fB6cC3D491abF50E27e05C8917E8811dac
+
+**Internal Security Review (2026-03-01)**
+- Comprehensive review of smart contracts and node code
+- Found: 1 Critical (V1 only), 5 High, 10 Medium, 10 Low severity issues
+- Key findings: Silent reward failures, plaintext key storage, emission cap not enforced
+- Report saved to: security/SECURITY_REVIEW.md
+
+**Security Analysis & Fixes (2026-02-28)**
+- Ran Slither on contracts - found and fixed critical reentrancy in TaskRegistryV2
+- Ran cargo-audit on node - replaced unmaintained dotenv with dotenvy
+- Redeployed TaskRegistryV2 with security fixes
+
+## Current Task
+None - ready for next task
+
+## Latest Test Results
+**Multi-Node Consensus Test (2026-03-01)** - SUCCESS
+- Ran 3 nodes locally with separate wallets
+- Submitted task to TaskRegistryV2 requiring 3 nodes
+- All 3 nodes claimed, executed, and submitted results
+- Consensus reached: 3/3 nodes agreed (identical result hashes)
+- Rewards distributed: 0.001 ETH to each node
+
+## Next Open Tasks (Priority Order)
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 29 | Create Docker deployment | Medium | Pending |
+| 18 | Node CLI improvements | Low | Pending |
+| 19 | Add RPC providers to OARNRegistry | Low | Pending |
+| 21 | Register ENS names (manual, before mainnet) | Low | Pending |
+| 15 | Deploy to mainnet (Arbitrum One) | Low | Blocked by #21 |
+
+## Completed Tasks
+- [x] #1: Core node software
+- [x] #2: Smart contracts (TaskRegistry, COMP, GOV tokens)
+- [x] #3: Website
+- [x] #4: Testnet deployment (Arbitrum Sepolia)
+- [x] #5: Social media accounts
+- [x] #6: Discord server
+- [x] #7: Fix P2P network bootstrap (mDNS + DHT)
+- [x] #8: COMP token reward distribution
+- [x] #9: IPFS + ONNX Runtime integration
+- [x] #10: Task submission CLI
+- [x] #20: ENS discovery code implementation
+- [x] #11: Governance voting CLI + Governance.sol contract
+- [x] #14: Multi-node consensus for tasks (TaskRegistryV2.sol)
+- [x] #25: Contract test coverage (183 tests)
+- [x] #26: Internal security review
+
+## Notes
+- Testnet: Arbitrum Sepolia (Chain ID: 421614)
+- OARNRegistry: 0x1efe74fB6cC3D491abF50E27e05C8917E8811dac (new, with V2 support)
+- TaskRegistry: 0x4dc9dd73834e94545cf041091e1a743fbd09a60f
+- TaskRegistryV2: 0x7b4898aDf69447d6ED3d62F6917CE10bD6519562 (fixed version)
+- COMP Token: 0x24249A523A251E38CB0001daBd54DD44Ea8f1838
+- GOV Token: 0xB97eDD49C225d2c43e7203aB9248cAbED2B268d3
+- Node wallet: 0x7379651e169e63272ec57ce14f2bfc023e28382e

@@ -1,0 +1,6 @@
+[submodule "oarn-node"]
+	path = oarn-node
+	url = git@github.com:oarn-network/oarn-node.git
+[submodule "oarn-contracts"]
+	path = oarn-contracts
+	url = git@github.com:oarn-network/oarn-contracts.git

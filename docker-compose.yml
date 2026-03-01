@@ -1,0 +1,102 @@
+# OARN Network - Docker Compose Configuration
+# Run with: docker-compose up -d
+
+version: '3.8'
+
+services:
+  # IPFS Node (required for model/input storage)
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: oarn-ipfs
+    ports:
+      - "4001:4001"      # P2P
+      - "5001:5001"      # API
+      - "8080:8080"      # Gateway
+    volumes:
+      - ipfs_data:/data/ipfs
+      - ipfs_staging:/export
+    environment:
+      - IPFS_PROFILE=server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ipfs id || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # OARN Node
+  oarn-node:
+    build:
+      context: ./oarn-node
+      dockerfile: Dockerfile
+    container_name: oarn-node
+    depends_on:
+      ipfs:
+        condition: service_healthy
+    ports:
+      - "4002:4001"      # P2P (mapped to 4002 to avoid conflict with IPFS)
+      - "8081:8080"      # HTTP API
+    volumes:
+      - oarn_data:/data
+      - ./config:/home/oarn/.oarn:ro
+    environment:
+      - RUST_LOG=info,oarn_node=debug
+      - OARN_PRIVATE_KEY=${OARN_PRIVATE_KEY}
+      - OARN_RPC_URL=${OARN_RPC_URL:-https://sepolia-rollup.arbitrum.io/rpc}
+    restart: unless-stopped
+
+  # Additional nodes for multi-node testing (optional)
+  oarn-node-2:
+    build:
+      context: ./oarn-node
+      dockerfile: Dockerfile
+    container_name: oarn-node-2
+    depends_on:
+      ipfs:
+        condition: service_healthy
+    ports:
+      - "4003:4001"
+      - "8082:8080"
+    volumes:
+      - oarn_data_2:/data
+      - ./config-node2:/home/oarn/.oarn:ro
+    environment:
+      - RUST_LOG=info,oarn_node=debug
+      - OARN_PRIVATE_KEY=${OARN_PRIVATE_KEY_2}
+      - OARN_RPC_URL=${OARN_RPC_URL:-https://sepolia-rollup.arbitrum.io/rpc}
+    profiles:
+      - multi-node
+    restart: unless-stopped
+
+  oarn-node-3:
+    build:
+      context: ./oarn-node
+      dockerfile: Dockerfile
+    container_name: oarn-node-3
+    depends_on:
+      ipfs:
+        condition: service_healthy
+    ports:
+      - "4004:4001"
+      - "8083:8080"
+    volumes:
+      - oarn_data_3:/data
+      - ./config-node3:/home/oarn/.oarn:ro
+    environment:
+      - RUST_LOG=info,oarn_node=debug
+      - OARN_PRIVATE_KEY=${OARN_PRIVATE_KEY_3}
+      - OARN_RPC_URL=${OARN_RPC_URL:-https://sepolia-rollup.arbitrum.io/rpc}
+    profiles:
+      - multi-node
+    restart: unless-stopped
+
+volumes:
+  ipfs_data:
+  ipfs_staging:
+  oarn_data:
+  oarn_data_2:
+  oarn_data_3:
+
+networks:
+  default:
+    name: oarn-network
