@@ -1,6 +1,26 @@
 # OARN Network - Task Progress
 
 ## Last Completed Tasks
+**Node CLI Improvements (2026-03-01)**
+- Added `--output json` global flag for JSON output (scripting/automation)
+- Added `oarn-node version` command for detailed version info
+- Added `oarn-node health` command to check connectivity (blockchain, IPFS, wallet)
+- Added `oarn-node peers` command to view P2P network status
+- Added `oarn-node tasks claim <id>` for manual task claiming
+- Added `oarn-node tasks cancel <id>` command (placeholder)
+- Added `oarn-node wallet send <to> <amount>` for ETH transfers
+- Added `oarn-node wallet history` command (requires indexer)
+- Added `oarn-node config validate` and `config path` commands
+- Added `--v2` flag to tasks list/status/mine/claim for V2 registry
+
+**Docker Deployment (2026-03-01)**
+- Created Dockerfile for oarn-node (multi-stage Rust build)
+- Created docker-compose.yml with IPFS + multi-node support
+- Added config.example.toml for containerized deployment
+- Added DOCKER.md documentation
+- Set up monorepo with submodules (oarn-node, oarn-contracts)
+- Pushed changes to GitHub (oarn-node, oarn-contracts)
+
 **Contract Test Coverage (2026-03-01)**
 - Created comprehensive test suite for TaskRegistryV2.sol (48 tests)
 - Created comprehensive test suite for Governance.sol (29 tests)
@@ -29,6 +49,19 @@
 ## Current Task
 None - ready for next task
 
+## CLI Improvements Summary
+New commands:
+- `oarn-node --output json [command]` - JSON output for all commands
+- `oarn-node version` - Detailed version/build info
+- `oarn-node health` - Check blockchain, IPFS, wallet connectivity
+- `oarn-node peers [--detailed]` - Show P2P network peers
+- `oarn-node tasks claim <id> [--v2] [--execute]` - Manual task claiming
+- `oarn-node tasks cancel <id> [--v2]` - Cancel submitted task
+- `oarn-node wallet send <to> <amount> [-y]` - Send ETH
+- `oarn-node wallet history [--limit N]` - Transaction history
+- `oarn-node config validate` - Validate config file
+- `oarn-node config path` - Show config file location
+
 ## Latest Test Results
 **Multi-Node Consensus Test (2026-03-01)** - SUCCESS
 - Ran 3 nodes locally with separate wallets
@@ -40,8 +73,6 @@ None - ready for next task
 ## Next Open Tasks (Priority Order)
 | # | Task | Priority | Status |
 |---|------|----------|--------|
-| 29 | Create Docker deployment | Medium | Pending |
-| 18 | Node CLI improvements | Low | Pending |
 | 19 | Add RPC providers to OARNRegistry | Low | Pending |
 | 21 | Register ENS names (manual, before mainnet) | Low | Pending |
 | 15 | Deploy to mainnet (Arbitrum One) | Low | Blocked by #21 |
@@ -62,6 +93,8 @@ None - ready for next task
 - [x] #14: Multi-node consensus for tasks (TaskRegistryV2.sol)
 - [x] #25: Contract test coverage (183 tests)
 - [x] #26: Internal security review
+- [x] #29: Docker deployment
+- [x] #18: Node CLI improvements (JSON output, health check, peers, manual claiming)
 
 ## Notes
 - Testnet: Arbitrum Sepolia (Chain ID: 421614)
