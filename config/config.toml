@@ -23,7 +23,7 @@ rpc_redundancy = 1
 # Arbitrum Sepolia testnet contract addresses
 task_registry = "0x4Dc9dD73834E94545cF041091e1A743FBD09a60f"
 task_registry_v2 = "0x7b4898aDf69447d6ED3d62F6917CE10bD6519562"
-oarn_registry = "0x1efe74fB6cC3D491abF50E27e05C8917E8811dac"
+oarn_registry = "0x8DD738DBBD4A8484872F84192D011De766Ba5458"
 token_reward = "0x24249A523A251E38CB0001daBd54DD44Ea8f1838"
 gov_token = "0xB97eDD49C225d2c43e7203aB9248cAbED2B268d3"
 

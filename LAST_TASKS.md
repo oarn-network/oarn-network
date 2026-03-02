@@ -1,6 +1,14 @@
 # OARN Network - Task Progress
 
 ## Last Completed Tasks
+**Add RPC Providers to OARNRegistry (2026-03-02)**
+- Added `addRPCProviderAdmin()` function to OARNRegistry.sol
+- Added `addBootstrapNodeAdmin()` function to OARNRegistry.sol
+- Deployed new OARNRegistry: 0x8DD738DBBD4A8484872F84192D011De766Ba5458
+- Registered 5 public RPC providers:
+  - Arbitrum Official, BlockPI, Blast API, Ankr, Alchemy
+- Updated node config with new registry address
+
 **Node CLI Improvements (2026-03-01)**
 - Added `--output json` global flag for JSON output (scripting/automation)
 - Added `oarn-node version` command for detailed version info
@@ -47,26 +55,7 @@
 - Redeployed TaskRegistryV2 with security fixes
 
 ## Current Task
-**Task #19: Add RPC Providers to OARNRegistry** - IN PROGRESS
-
-Changes made:
-1. Added `addRPCProviderAdmin()` function to OARNRegistry.sol (owner can add providers without stake)
-2. Added `addBootstrapNodeAdmin()` function to OARNRegistry.sol
-3. Created `scripts/add-rpc-providers.ts` to deploy and add public RPC endpoints
-
-To complete, run:
-```bash
-cd oarn-contracts
-npx hardhat compile
-npx hardhat run scripts/add-rpc-providers.ts --network arbitrumSepolia
-```
-
-RPC providers to be added:
-- https://sepolia-rollup.arbitrum.io/rpc (Arbitrum Official)
-- https://arbitrum-sepolia.blockpi.network/v1/rpc/public (BlockPI)
-- https://arbitrum-sepolia.public.blastapi.io (Blast API)
-- https://rpc.ankr.com/arbitrum_sepolia (Ankr)
-- https://arb-sepolia.g.alchemy.com/v2/demo (Alchemy)
+None - ready for next task
 
 ## CLI Improvements Summary
 New commands:
@@ -92,8 +81,8 @@ New commands:
 ## Next Open Tasks (Priority Order)
 | # | Task | Priority | Status |
 |---|------|----------|--------|
-| 19 | Add RPC providers to OARNRegistry | Low | Pending |
 | 21 | Register ENS names (manual, before mainnet) | Low | Pending |
+| 16 | Create marketing materials | Low | Pending |
 | 15 | Deploy to mainnet (Arbitrum One) | Low | Blocked by #21 |
 
 ## Completed Tasks
@@ -114,10 +103,11 @@ New commands:
 - [x] #26: Internal security review
 - [x] #29: Docker deployment
 - [x] #18: Node CLI improvements (JSON output, health check, peers, manual claiming)
+- [x] #19: Add RPC providers to OARNRegistry (5 public endpoints)
 
 ## Notes
 - Testnet: Arbitrum Sepolia (Chain ID: 421614)
-- OARNRegistry: 0x1efe74fB6cC3D491abF50E27e05C8917E8811dac (new, with V2 support)
+- OARNRegistry: 0x8DD738DBBD4A8484872F84192D011De766Ba5458 (with RPC providers)
 - TaskRegistry: 0x4dc9dd73834e94545cf041091e1a743fbd09a60f
 - TaskRegistryV2: 0x7b4898aDf69447d6ED3d62F6917CE10bD6519562 (fixed version)
 - COMP Token: 0x24249A523A251E38CB0001daBd54DD44Ea8f1838
