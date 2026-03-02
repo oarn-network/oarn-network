@@ -47,7 +47,26 @@
 - Redeployed TaskRegistryV2 with security fixes
 
 ## Current Task
-None - ready for next task
+**Task #19: Add RPC Providers to OARNRegistry** - IN PROGRESS
+
+Changes made:
+1. Added `addRPCProviderAdmin()` function to OARNRegistry.sol (owner can add providers without stake)
+2. Added `addBootstrapNodeAdmin()` function to OARNRegistry.sol
+3. Created `scripts/add-rpc-providers.ts` to deploy and add public RPC endpoints
+
+To complete, run:
+```bash
+cd oarn-contracts
+npx hardhat compile
+npx hardhat run scripts/add-rpc-providers.ts --network arbitrumSepolia
+```
+
+RPC providers to be added:
+- https://sepolia-rollup.arbitrum.io/rpc (Arbitrum Official)
+- https://arbitrum-sepolia.blockpi.network/v1/rpc/public (BlockPI)
+- https://arbitrum-sepolia.public.blastapi.io (Blast API)
+- https://rpc.ankr.com/arbitrum_sepolia (Ankr)
+- https://arb-sepolia.g.alchemy.com/v2/demo (Alchemy)
 
 ## CLI Improvements Summary
 New commands:
