@@ -31,3 +31,4 @@ target/
 # Config directories with secrets
 config-node2/
 config-node3/
+LAST_TASKS.md
