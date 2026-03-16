@@ -13,7 +13,7 @@ Anyone can run a node, earn rewards for executing AI inference tasks, and contri
 | Resource | URL |
 |----------|-----|
 | Website | https://oarn-network.github.io/oarn-website/ |
-| Dashboard | https://oarn-dashboard-lxpk26rfe-flogb96s-projects.vercel.app/ |
+| Dashboard | https://oarn-dashboard.vercel.app/ |
 | SDK (npm) | https://www.npmjs.com/package/@oarnnetwork/sdk |
 | Discord | https://discord.gg/RsrQwNvt |
 | Twitter | https://twitter.com/OARNNetwork |
@@ -93,7 +93,7 @@ Next.js 14 web dashboard with RainbowKit wallet integration. Four role-based vie
 - **Crowdfunder** — fund research tasks
 - **Investor** — analytics, governance voting
 
-→ [Live Dashboard](https://oarn-dashboard-lxpk26rfe-flogb96s-projects.vercel.app/)
+→ [Live Dashboard](https://oarn-dashboard.vercel.app/)
 
 ---
 
