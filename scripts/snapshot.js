@@ -190,7 +190,7 @@ async function main() {
   let md = `# OARN Testnet Leaderboard\n\n`;
   md += `**Last snapshot:** ${today} | **Snapshot #${snapshotNum}**\n\n`;
   md += `> Points convert to mainnet GOV tokens at TGE (Q3 2026).\n`;
-  md += `> [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://forms.gle/placeholder-referral) | [Rewards program details →](../plans/testnet-rewards-program.md)\n\n`;
+  md += `> [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://docs.google.com/forms/d/e/1FAIpQLSdyc2YQtXmJAhXSbg0wQd03Tb6X5KjreBokjzxswXwSaGi3tQ/viewform) | [Rewards program details →](../plans/testnet-rewards-program.md)\n\n`;
 
   if (entries.length === 0) {
     md += `*No on-chain activity recorded yet.*\n\n`;
