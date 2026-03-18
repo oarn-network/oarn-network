@@ -51,4 +51,4 @@ Node operators who run tasks on Arbitrum Sepolia earn points that convert to **G
 
 ## Full Program Details
 
-→ [plans/testnet-rewards-program.md](../plans/testnet-rewards-program.md)
+→ [plans/testnet-rewards-program.md](../docs/testnet-rewards-program.md)

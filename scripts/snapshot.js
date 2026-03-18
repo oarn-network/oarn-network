@@ -190,7 +190,7 @@ async function main() {
   let md = `# OARN Testnet Leaderboard\n\n`;
   md += `**Last snapshot:** ${today} | **Snapshot #${snapshotNum}**\n\n`;
   md += `> Points convert to mainnet GOV tokens at TGE (Q3 2026).\n`;
-  md += `> [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://docs.google.com/forms/d/e/1FAIpQLSdyc2YQtXmJAhXSbg0wQd03Tb6X5KjreBokjzxswXwSaGi3tQ/viewform) | [Rewards program details →](../plans/testnet-rewards-program.md)\n\n`;
+  md += `> [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://docs.google.com/forms/d/e/1FAIpQLSdyc2YQtXmJAhXSbg0wQd03Tb6X5KjreBokjzxswXwSaGi3tQ/viewform) | [Rewards program details →](../docs/testnet-rewards-program.md)\n\n`;
 
   if (entries.length === 0) {
     md += `*No on-chain activity recorded yet.*\n\n`;
@@ -221,7 +221,7 @@ async function main() {
   md += `\n---\n\n`;
   md += `*Snapshots run every Sunday at 23:59 UTC via GitHub Actions.*\n`;
   md += `*Early bird multiplier (1.5×) applies to all points earned before April 30, 2026.*\n`;
-  md += `*[View full rewards program →](../plans/testnet-rewards-program.md)*\n`;
+  md += `*[View full rewards program →](../docs/testnet-rewards-program.md)*\n`;
 
   // ─── Write files ─────────────────────────────────────────────────────────
 
