@@ -1,0 +1,9 @@
+{
+  "name": "oarn-scripts",
+  "version": "1.0.0",
+  "description": "Utility scripts for OARN Network",
+  "private": true,
+  "dependencies": {
+    "ethers": "^6.0.0"
+  }
+}
