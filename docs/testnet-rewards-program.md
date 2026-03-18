@@ -21,7 +21,7 @@ Points are earned through on-chain and community activity. All on-chain activiti
 | Task completed (matching consensus) | 15 pts | Must reach consensus to count |
 | Task completed (wrong result) | 0 pts | Penalized — dishonest nodes excluded |
 | 100% uptime for a full week | 50 pts bonus | Defined as: node online ≥ 7 consecutive days |
-| First 20 alpha testers | 500 pts bonus | One-time, guaranteed. See Task #35 |
+| First 20 alpha testers | 500 pts bonus | One-time, guaranteed for first 20 node operators |
 | Valid bug report accepted | 100 pts | Must be triaged and confirmed by team |
 | Refer a node operator (runs 2+ weeks) | 200 pts | Per referred operator; tracked via form |
 | Fund a research task (`fundTask()`) | 25 pts | Per unique task funded |
@@ -149,7 +149,7 @@ To receive your GOV allocation at mainnet, register your operator wallet before 
 - Referral code (if applicable)
 - Confirmation that you understand testnet rewards vest at TGE
 
-**Form URL:** Will be published in @OARNAlerts and Discord when open.
+**Form URL:** [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform)
 
 ---
 
@@ -164,15 +164,3 @@ To receive your GOV allocation at mainnet, register your operator wallet before 
 | Q3 2026 July | Final snapshot + wallet registration deadline |
 | Q3 2026 Aug | TGE — GOV allocations distributed |
 
----
-
-## Related Tasks
-
-| ID | Task | Priority | Status |
-|----|------|----------|--------|
-| R1 | Write testnet-rewards-program.md (this doc) | High | ✅ Complete |
-| R2 | Create public leaderboard (Google Sheet or GitHub) | High | Pending |
-| R3 | Create wallet registration form (Typeform/Google Form) | High | Pending |
-| R4 | Write announcement tweet + Discord post for rewards program | High | Pending |
-| R5 | Build weekly snapshot script (reads on-chain TaskRegistryV2 events) | Medium | Pending |
-| R6 | Create referral tracking system (simple form or Discord bot) | Medium | Pending |
