@@ -38,7 +38,7 @@ Node operators who run tasks on Arbitrum Sepolia earn points that convert to **G
 ## How to Participate
 
 1. **Run a node** — [oarn-node setup guide](https://github.com/oarn-network/oarn-node)
-2. **Register your wallet** — [Wallet registration form](https://forms.gle/placeholder-registration) *(required before final snapshot)*
+2. **Register your wallet** — [Wallet registration form](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) *(required before final snapshot)*
 3. **Refer operators** — Share your referral link, earn 200 pts per active referral
 4. **Fund research** — Visit the [OARN Dashboard](https://oarn-dashboard.vercel.app) to fund tasks
 

@@ -3,7 +3,7 @@
 **Last snapshot:** — | **Snapshot #0**
 
 > Points convert to mainnet GOV tokens at TGE (Q3 2026).
-> [Register your wallet →](https://forms.gle/placeholder-registration) | [Referral form →](https://forms.gle/placeholder-referral) | [Rewards program details →](../plans/testnet-rewards-program.md)
+> [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://forms.gle/placeholder-referral) | [Rewards program details →](../plans/testnet-rewards-program.md)
 
 *No on-chain activity recorded yet.*
 
