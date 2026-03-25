@@ -510,6 +510,49 @@ New commands:
 | 78 | Write OARN impact narrative — existential risk / decentralized AI safety framing | Medium | ✅ Done — foresight-grant-application.md |
 | 79 | Apply to Foresight Institute AI Nodes grant ($10k–$100k) | High | Blocked by #32.1, #75, #76 response |
 
+### Bugs — Found 2026-03-25 audit
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 86 | Fix OARNRegistry address mismatch: dashboard constants.ts + website index.html show 0x8DD738... but deployment-addresses.json has 0xa12251... | URGENT | Pending |
+| 87 | Fix oarn-node Cargo.toml version: says 0.1.0 but GitHub release tag is v0.1.6 | Medium | Pending |
+| 88 | Fix oarn-node CI failures: Node Software CI has been failing since Mar 16 | High | Pending |
+| 89 | Remove console.log from oarn-dashboard/app/(auth)/researcher/batch/page.tsx:45 | Low | Pending |
+| 90 | Set TASK_REGISTRY_DEPLOY_BLOCK to actual deploy block number (currently BigInt(0) with TODO in dashboard constants.ts) | Medium | Pending |
+
+### Website / Docs Gaps — Found 2026-03-25 audit
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 91 | Add WetLabOracle to homepage contracts section (deployed 0xF8991A... but not shown) | Medium | Pending |
+| 92 | Change WetLabOracle feature card from "Roadmap" badge to "Live" on homepage | Medium | Pending |
+| 93 | Fix "Closed-Loop Architecture" link on docs.html — currently links to org root, not a specific doc | Low | Pending |
+| 94 | Update oarn-docs/quick-start.md: "Web Interface (Coming Soon)" → link to live dashboard | Medium | Pending |
+| 95 | Update oarn-docs/architecture.md: add WetLabOracle section + all current deployed addresses | Medium | Pending |
+
+### Security — Found 2026-03-25 audit
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 96 | Security review of WetLabOracle contract — deployed Mar 21, after the existing security-review.md (dated Mar 01) | High | Pending |
+| 97 | Fix H-1: silent reward transfer failures in TaskRegistryV2 — implement pull-based withdrawal pattern before mainnet | High | Blocked by #57 |
+| 98 | Add CI workflow for oarn-dashboard — currently has zero automated build/type-check (oarn-dashboard/actions shows 0 runs) | Medium | Pending |
+
+### Node Implementation Stubs — Found 2026-03-25 audit
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 99 | Node: implement actual DHT + OARNRegistry peer discovery (discovery.rs:321,340 — stubs using bootstrap fallback only) | High | Pending |
+| 100 | Node: implement PyTorch and TensorFlow model execution (compute.rs:420,426 — ONNX only works today) | High | Pending |
+| 101 | Node: implement CUDA/ROCm GPU detection (compute.rs:688 — always falls back to CPU) | Medium | Pending |
+| 102 | Node: implement event subscription via WebSocket (blockchain.rs:741 — polling only, inefficient) | Medium | Pending |
+
+### Marketing Gap — Found 2026-03-25 audit
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 103 | Queue tweets for unannounced milestones: testnet rewards leaderboard, Claude optimization, 4-day Twitter gap since Mar 21 | High | Pending |
+
 ---
 
 ## Task #51: Automate Blog Page Updates
