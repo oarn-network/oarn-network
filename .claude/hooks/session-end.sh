@@ -36,6 +36,30 @@ PROJECT_DIR="/c/Users/flori/Documents/oarn-network"
   cat "$PROJECT_DIR/oarn-contracts/deployment-addresses.json" 2>/dev/null || echo "(not found)"
   echo ""
 
+  echo "--- Console.log Sweep (production files) ---"
+  CONSOLE_HITS=$(grep -rn 'console\.log' \
+    "$PROJECT_DIR/oarn-dashboard/src" \
+    "$PROJECT_DIR/oarn-sdk/src" \
+    2>/dev/null | grep -v '\.test\.' | grep -v 'node_modules')
+  if [ -n "$CONSOLE_HITS" ]; then
+    echo "WARNING: console.log found in production code:"
+    echo "$CONSOLE_HITS"
+  else
+    echo "Clean — no console.log in production code"
+  fi
+  echo ""
+
+  echo "--- Uncommitted Changes Warning ---"
+  cd "$PROJECT_DIR" 2>/dev/null
+  DIRTY=$(git status --short 2>/dev/null | grep -v '^\?\?' | head -10)
+  if [ -n "$DIRTY" ]; then
+    echo "WARNING: uncommitted changes exist:"
+    echo "$DIRTY"
+  else
+    echo "Clean — nothing uncommitted"
+  fi
+  echo ""
+
   echo "=== END SNAPSHOT ==="
 } > "$OUT" 2>&1
 

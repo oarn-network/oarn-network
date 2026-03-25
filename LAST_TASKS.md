@@ -479,6 +479,8 @@ New commands:
 | 81 | Claude Code optimization — Phase 2: Skills & Commands | High | ✅ Done (2026-03-25) |
 | 82 | Claude Code optimization — Phase 3: Session persistence hooks | Medium | ✅ Done (2026-03-25) |
 | 83 | Claude Code optimization — Phase 4: Subagents | Medium | ✅ Done (2026-03-25) |
+| 84 | Claude Code optimization — Phase 5: MCP pruning + CLI skills | Medium | ✅ Done (2026-03-25) |
+| 85 | Claude Code optimization — Phase 6: Verification loops | Medium | ✅ Done (2026-03-25) |
 | 56 | Professional smart contract security audit | High | Blocked by #57 |
 | 57 | Scale network test to 10+ nodes | High | Pending |
 | ~~51~~ | ~~Automate blog page updates~~ | ~~Medium~~ | ✅ Complete |
