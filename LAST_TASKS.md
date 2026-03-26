@@ -514,17 +514,19 @@ New commands:
 
 | # | Task | Priority | Status |
 |---|------|----------|--------|
-| 86 | Fix OARNRegistry address mismatch: dashboard constants.ts + website index.html show 0x8DD738... but deployment-addresses.json has 0xa12251... | URGENT | Pending |
-| 87 | Fix oarn-node Cargo.toml version: says 0.1.0 but GitHub release tag is v0.1.6 | Medium | Pending |
+| 86 | Fix OARNRegistry address mismatch: dashboard constants.ts + website index.html show 0x8DD738... but deployment-addresses.json has 0xa12251... | URGENT | ✅ Done (2026-03-26) |
+| 104 | Fix SDK README TaskRegistry address: shows old 0x7b4898... instead of 0xD15530... — also added WetLabOracle + Governance to table | URGENT | ✅ Done (2026-03-26) |
+| 105 | Fix oarn-docs/quick-start.md: "Web Interface (Coming Soon)" → live dashboard link | High | ✅ Done (2026-03-26) |
+| 87 | Fix oarn-node Cargo.toml version: says 0.1.0 but GitHub release tag is v0.1.6 | Medium | ✅ Done (2026-03-26) |
 | 88 | Fix oarn-node CI failures: Node Software CI has been failing since Mar 16 | High | Pending |
-| 89 | Remove console.log from oarn-dashboard/app/(auth)/researcher/batch/page.tsx:45 | Low | Pending |
+| 89 | Remove console.log from oarn-dashboard/app/(auth)/researcher/batch/page.tsx:45 | Low | ✅ Done (2026-03-26) |
 | 90 | Set TASK_REGISTRY_DEPLOY_BLOCK to actual deploy block number (currently BigInt(0) with TODO in dashboard constants.ts) | Medium | Pending |
 
 ### Website / Docs Gaps — Found 2026-03-25 audit
 
 | # | Task | Priority | Status |
 |---|------|----------|--------|
-| 91 | Add WetLabOracle to homepage contracts section (deployed 0xF8991A... but not shown) | Medium | Pending |
+| 91 | Add WetLabOracle to homepage contracts section (deployed 0xF8991A... but not shown) | Medium | ✅ Done (2026-03-26) |
 | 92 | Change WetLabOracle feature card from "Roadmap" badge to "Live" on homepage | Medium | Pending |
 | 93 | Fix "Closed-Loop Architecture" link on docs.html — currently links to org root, not a specific doc | Low | Pending |
 | 94 | Update oarn-docs/quick-start.md: "Web Interface (Coming Soon)" → link to live dashboard | Medium | Pending |
