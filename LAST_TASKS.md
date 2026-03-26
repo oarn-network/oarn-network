@@ -527,7 +527,7 @@ New commands:
 | # | Task | Priority | Status |
 |---|------|----------|--------|
 | 91 | Add WetLabOracle to homepage contracts section (deployed 0xF8991A... but not shown) | Medium | ✅ Done (2026-03-26) |
-| 92 | Change WetLabOracle feature card from "Roadmap" badge to "Live" on homepage | Medium | Pending |
+| 92 | Change WetLabOracle feature card from "Roadmap" badge to "Live" on homepage | Medium | ✅ Done (2026-03-26) |
 | 93 | Fix "Closed-Loop Architecture" link on docs.html — currently links to org root, not a specific doc | Low | Pending |
 | 94 | Update oarn-docs/quick-start.md: "Web Interface (Coming Soon)" → link to live dashboard | Medium | Pending |
 | 95 | Update oarn-docs/architecture.md: add WetLabOracle section + all current deployed addresses | Medium | Pending |
