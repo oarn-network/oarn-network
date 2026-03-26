@@ -518,7 +518,7 @@ New commands:
 | 104 | Fix SDK README TaskRegistry address: shows old 0x7b4898... instead of 0xD15530... — also added WetLabOracle + Governance to table | URGENT | ✅ Done (2026-03-26) |
 | 105 | Fix oarn-docs/quick-start.md: "Web Interface (Coming Soon)" → live dashboard link | High | ✅ Done (2026-03-26) |
 | 87 | Fix oarn-node Cargo.toml version: says 0.1.0 but GitHub release tag is v0.1.6 | Medium | ✅ Done (2026-03-26) |
-| 88 | Fix oarn-node CI failures: Node Software CI has been failing since Mar 16 | High | Pending |
+| 88 | Fix oarn-node CI failures: Node Software CI has been failing since Mar 16 | High | ✅ Done (2026-03-26) — fail-fast: false, ONNX Runtime via Homebrew/zip on macOS/Windows, rustfmt applied |
 | 89 | Remove console.log from oarn-dashboard/app/(auth)/researcher/batch/page.tsx:45 | Low | ✅ Done (2026-03-26) |
 | 90 | Set TASK_REGISTRY_DEPLOY_BLOCK to actual deploy block number (currently BigInt(0) with TODO in dashboard constants.ts) | Medium | Pending |
 
