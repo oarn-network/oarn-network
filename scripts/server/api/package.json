@@ -1,0 +1,19 @@
+{
+  "name": "oarn-api",
+  "version": "1.0.0",
+  "description": "OARN Network API gateway",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "ethers": "^6.0.0",
+    "express": "^4.18.0",
+    "express-rate-limit": "^7.0.0",
+    "cors": "^2.8.5",
+    "redis": "^4.6.0",
+    "dotenv": "^16.0.0"
+  }
+}
