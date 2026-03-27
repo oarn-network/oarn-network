@@ -1,0 +1,48 @@
+name: Benchmark Loop
+
+on:
+  schedule:
+    # Every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC
+    - cron: '0 0,6,12,18 * * *'
+  workflow_dispatch:
+    inputs:
+      tasks_per_run:
+        description: 'Tasks to submit (default: 3)'
+        required: false
+        default: '3'
+
+jobs:
+  benchmark:
+    name: Submit benchmark inference tasks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --prefix scripts
+
+      - name: Run benchmark loop
+        env:
+          BENCHMARK_PRIVATE_KEY: ${{ secrets.BENCHMARK_PRIVATE_KEY }}
+          RPC_URL: ${{ secrets.RPC_URL || 'https://sepolia-rollup.arbitrum.io/rpc' }}
+          TASKS_PER_RUN: ${{ github.event.inputs.tasks_per_run || '3' }}
+          REWARD_PER_NODE_ETH: '0.0001'
+          REQUIRED_NODES: '2'
+          DEADLINE_HOURS: '4'
+        run: node scripts/benchmark/benchmark-loop.js
+
+      - name: Upload run summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-run-${{ github.run_number }}
+          path: |
+            scripts/benchmark/last-run-summary.json
+            scripts/benchmark/run.log
+          retention-days: 30

@@ -31,6 +31,10 @@ target/
 # Config directories with secrets
 config-node2/
 config-node3/
+scripts/.announce-config.json
+scripts/benchmark/models/
+scripts/benchmark/run.log
+scripts/benchmark/last-run-summary.json
 LAST_TASKS.md
 marketing/
-marketing/
+plans/
