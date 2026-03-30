@@ -1,6 +1,6 @@
 # OARN Testnet Leaderboard
 
-**Last snapshot:** 2026-03-27 | **Snapshot #3**
+**Last snapshot:** 2026-03-30 | **Snapshot #3**
 
 > Points convert to mainnet GOV tokens at TGE (Q3 2026).
 > [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://docs.google.com/forms/d/e/1FAIpQLSdyc2YQtXmJAhXSbg0wQd03Tb6X5KjreBokjzxswXwSaGi3tQ/viewform) | [Rewards program details →](../docs/testnet-rewards-program.md)
