@@ -37,7 +37,7 @@ const taskRegistry = new ethers.Contract(
 );
 
 const oarnRegistry = new ethers.Contract(
-  process.env.OARN_REGISTRY || '0x8DD738DBBD4A8484872F84192D011De766Ba5458',
+  process.env.OARN_REGISTRY || '0xa122518Cb6E66A804fc37EB26c8a7aF309dCF04C',
   REGISTRY_ABI,
   provider
 );

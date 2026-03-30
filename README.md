@@ -60,7 +60,7 @@ Solidity smart contracts deployed on Arbitrum Sepolia.
 | Contract | Address |
 |----------|---------|
 | TaskRegistryV2 | `0xD15530ce13188EE88E43Ab07EDD9E8729fCc55D0` |
-| OARNRegistry | `0x8DD738DBBD4A8484872F84192D011De766Ba5458` |
+| OARNRegistry | `0xa122518Cb6E66A804fc37EB26c8a7aF309dCF04C` |
 | COMP Token | `0x24249A523A251E38CB0001daBd54DD44Ea8f1838` |
 | GOV Token | `0xB97eDD49C225d2c43e7203aB9248cAbED2B268d3` |
 
