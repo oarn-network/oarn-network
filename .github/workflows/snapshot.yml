@@ -39,3 +39,8 @@ jobs:
             git commit -m "chore: weekly leaderboard snapshot $(date -u +%Y-%m-%d)" &&
             git push
           )
+
+      - name: Post weekly summary to Discord
+        run: node scripts/discord-snapshot.mjs
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_TASKS }}

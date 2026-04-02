@@ -1,0 +1,40 @@
+name: Task Alert Watcher
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Every 30 minutes
+  workflow_dispatch:          # Manual trigger
+
+jobs:
+  watch:
+    runs-on: self-hosted
+    permissions:
+      contents: write         # Needed to save .last-watched-block state
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --prefix scripts
+
+      - name: Check for new tasks and alert Discord
+        run: node scripts/task-watcher.mjs
+        env:
+          RPC_URL: https://sepolia-rollup.arbitrum.io/rpc
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_TASKS }}
+
+      - name: Save last checked block
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add leaderboard/.last-watched-block
+          git diff --staged --quiet && echo "No new block to save" || (
+            git commit -m "chore: update task watcher checkpoint [skip ci]" &&
+            git push
+          )
