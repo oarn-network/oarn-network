@@ -1,0 +1,47 @@
+name: Continuous Task Submission
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:         # Manual trigger from GitHub Actions tab
+    inputs:
+      dry_run:
+        description: 'Dry run (no actual submissions)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+      min_open_tasks:
+        description: 'Minimum open tasks to maintain'
+        required: false
+        default: '3'
+
+jobs:
+  submit-tasks:
+    runs-on: self-hosted   # Uses the runner on oarn-node1 (144.76.58.152)
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm install
+          npm install @oarnnetwork/sdk
+
+      - name: Check task queue and submit if needed
+        run: node scripts/task-submitter.mjs
+        env:
+          SUBMITTER_PRIVATE_KEY: ${{ secrets.SUBMITTER_PRIVATE_KEY }}
+          RPC_URL: https://sepolia-rollup.arbitrum.io/rpc
+          MIN_OPEN_TASKS: ${{ github.event.inputs.min_open_tasks || '3' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_TASKS }}

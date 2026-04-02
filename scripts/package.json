@@ -4,6 +4,7 @@
   "description": "Utility scripts for OARN Network",
   "private": true,
   "dependencies": {
-    "ethers": "^6.0.0"
+    "ethers": "^6.0.0",
+    "@oarnnetwork/sdk": "^0.3.0"
   }
 }
