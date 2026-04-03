@@ -40,7 +40,7 @@ jobs:
       - name: Check task queue and submit if needed
         run: node scripts/task-submitter.mjs
         env:
-          SUBMITTER_PRIVATE_KEY: ${{ secrets.SUBMITTER_PRIVATE_KEY }}
+          SUBMITTER_PRIVATE_KEY: ${{ secrets.SUBMITTER_KEY }}
           RPC_URL: https://sepolia-rollup.arbitrum.io/rpc
           MIN_OPEN_TASKS: ${{ github.event.inputs.min_open_tasks || '3' }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
