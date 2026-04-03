@@ -18,7 +18,7 @@ on:
 
 jobs:
   submit-tasks:
-    runs-on: self-hosted   # Uses the runner on oarn-node1 (144.76.58.152)
+    runs-on: [self-hosted, Linux, X64]   # Uses the runner on oarn-node1 (144.76.58.152)
     permissions:
       contents: read
 
