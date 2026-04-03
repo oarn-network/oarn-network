@@ -27,6 +27,7 @@ jobs:
         run: node scripts/task-watcher.mjs
         env:
           RPC_URL: https://sepolia-rollup.arbitrum.io/rpc
+          # Posts to #node-ops / #tasks channel
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_TASKS }}
 
       - name: Save last checked block
