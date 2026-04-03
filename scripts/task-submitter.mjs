@@ -15,7 +15,15 @@
  *   DISCORD_WEBHOOK        - Discord webhook URL for notifications (optional)
  */
 
+import { ethers } from 'ethers';
 import { OARNClient, ConsensusType, parseTokenAmount } from '@oarnnetwork/sdk';
+
+// ── Direct contract read ABI (correct full struct including string field) ──────
+const TASK_REGISTRY_ADDRESS = '0xD15530ce13188EE88E43Ab07EDD9E8729fCc55D0';
+const TASK_REGISTRY_READ_ABI = [
+  'function taskCount() view returns (uint256)',
+  'function tasks(uint256 taskId) view returns (uint256 id, address requester, bytes32 modelHash, bytes32 inputHash, string modelRequirements, uint256 rewardPerNode, uint256 requiredNodes, uint256 claimedCount, uint256 submittedCount, uint256 deadline, uint8 status, uint8 consensusType, uint256 createdAt, bytes32 consensusResult)',
+];
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -208,19 +216,23 @@ function formatEth(wei) {
   return (Number(wei) / 1e18).toFixed(6);
 }
 
-async function countOpenTasks(client) {
-  const total = await client.getTaskCount();
+async function countOpenTasks(provider) {
+  const contract = new ethers.Contract(TASK_REGISTRY_ADDRESS, TASK_REGISTRY_READ_ABI, provider);
+  const total = Number(await contract.taskCount());
   if (total === 0) return 0;
 
   const now = Math.floor(Date.now() / 1000);
-  const start = Math.max(0, total - CHECK_LAST_N);
+  // Task IDs are 1-based; scan the last CHECK_LAST_N tasks
+  const startId = Math.max(1, total - CHECK_LAST_N + 1);
   let open = 0;
 
-  for (let id = start; id < total; id++) {
+  for (let id = startId; id <= total; id++) {
     try {
-      const task = await client.getTask(id);
-      // Status 0 = Open, deadline not yet passed
-      if (task.status === 0 && Number(task.deadline) > now) {
+      const task = await contract.tasks(id);
+      // status 0 = Pending, 1 = Active; deadline must be in future
+      const status = Number(task.status);
+      const deadline = Number(task.deadline);
+      if ((status === 0 || status === 1) && deadline > now) {
         open++;
       }
     } catch {
@@ -256,6 +268,7 @@ async function main() {
     process.exit(1);
   }
 
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
   const client = new OARNClient({ privateKey: PRIVATE_KEY, rpcUrl: RPC_URL });
   const wallet = client.getAddress();
   log(`Wallet: ${wallet}`);
@@ -269,11 +282,12 @@ async function main() {
     process.exit(1);
   }
 
-  // Check how many open tasks exist
-  const total = await client.getTaskCount();
+  // Check how many open tasks exist (use direct RPC with correct ABI)
+  const registryContract = new ethers.Contract(TASK_REGISTRY_ADDRESS, TASK_REGISTRY_READ_ABI, provider);
+  const total = Number(await registryContract.taskCount());
   log(`Total tasks on-chain: ${total}`);
 
-  const openCount = await countOpenTasks(client);
+  const openCount = await countOpenTasks(provider);
   log(`Open (claimable) tasks: ${openCount}`);
 
   if (openCount >= MIN_OPEN_TASKS) {
