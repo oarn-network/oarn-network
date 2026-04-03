@@ -7,7 +7,7 @@ on:
 
 jobs:
   watch:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       contents: write         # Needed to save .last-watched-block state
 
