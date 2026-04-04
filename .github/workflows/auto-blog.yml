@@ -25,4 +25,9 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BLOG_PAT: ${{ secrets.BLOG_PAT }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: node scripts/auto-blog.js
+        run: |
+          node scripts/auto-blog.js 2>&1 | tee /tmp/blog_out.txt
+          EXIT=${PIPESTATUS[0]}
+          echo "## Auto-blog output" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/blog_out.txt >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
