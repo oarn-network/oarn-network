@@ -1,4 +1,46 @@
 {
-  "_comment": "Populated by setup.js after IPFS upload. Do not edit manually.",
-  "models": []
+  "models": [
+    {
+      "label": "iris_classifier",
+      "description": "Iris species classifier (4 float inputs → 3 class logits)",
+      "cid": "QmPmZdp6dxbdrastuTaHBiEWnn4SvEGPmkXA2cad5yrgcx",
+      "filename": "iris_classifier.onnx",
+      "inputSize": 4,
+      "outputSize": 3,
+      "inputShape": [
+        1,
+        4
+      ],
+      "requirements": "onnx>=1.14",
+      "uploadedAt": "2026-04-04T11:40:18.204Z"
+    },
+    {
+      "label": "linear_regression",
+      "description": "General linear regression (8 float inputs → 1 float output)",
+      "cid": "QmQzT9DwRD5UjwifLWwwtUPaJ24xV8k9dW7a4i8xzUqHHD",
+      "filename": "linear_regression.onnx",
+      "inputSize": 8,
+      "outputSize": 1,
+      "inputShape": [
+        1,
+        8
+      ],
+      "requirements": "onnx>=1.14",
+      "uploadedAt": "2026-04-04T11:40:18.243Z"
+    },
+    {
+      "label": "mnist_mini",
+      "description": "Mini MNIST MLP (784 float inputs → 10 class logits)",
+      "cid": "QmT2inRjs77aECCw7NseCeYPbXmCRqmC7MWtG8TFzSrRDN",
+      "filename": "mnist_mini.onnx",
+      "inputSize": 784,
+      "outputSize": 10,
+      "inputShape": [
+        1,
+        784
+      ],
+      "requirements": "onnx>=1.14",
+      "uploadedAt": "2026-04-04T11:40:18.283Z"
+    }
+  ]
 }
