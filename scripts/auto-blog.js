@@ -79,10 +79,19 @@ function callClaude(commitMessage) {
       res.on('end', () => {
         try {
           const parsed = JSON.parse(data);
-          const text = parsed.content?.[0]?.text ?? '';
+
+          // Surface API-level errors (billing, auth, overload, etc.)
+          if (parsed.type === 'error') {
+            reject(new Error(`Claude API error: ${parsed.error?.type} — ${parsed.error?.message}`));
+            return;
+          }
+
+          const raw = parsed.content?.[0]?.text ?? '';
+          // Strip markdown code fences that Claude sometimes adds despite instructions
+          const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
           resolve(JSON.parse(text));
         } catch (e) {
-          reject(new Error(`Failed to parse Claude response: ${data}`));
+          reject(new Error(`Failed to parse Claude response: ${data.slice(0, 500)}`));
         }
       });
     });
