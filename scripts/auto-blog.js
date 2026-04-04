@@ -117,7 +117,13 @@ async function main() {
   // Clone the website repo, prepend the post, push
   const tmpDir = '/tmp/oarn-website';
   execSync(`rm -rf ${tmpDir}`);
-  execSync(`git clone https://x-access-token:${BLOG_PAT}@${WEBSITE_REPO} ${tmpDir}`, { stdio: 'pipe' });
+  try {
+    execSync(`git clone https://x-access-token:${BLOG_PAT}@${WEBSITE_REPO} ${tmpDir}`, { stdio: 'pipe' });
+  } catch (e) {
+    console.error('ERROR: git clone failed — BLOG_PAT is likely expired or missing write access to oarn-website.');
+    console.error('Renew the PAT at https://github.com/settings/tokens and update the BLOG_PAT secret.');
+    throw e;
+  }
 
   const jsonPath = path.join(tmpDir, 'blog-posts.json');
   const existing = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
