@@ -16,13 +16,17 @@
  */
 
 import { ethers } from 'ethers';
-import { OARNClient, ConsensusType, parseTokenAmount } from '@oarnnetwork/sdk';
+import { OARNClient, ConsensusType, parseTokenAmount, cidToBytes32 } from '@oarnnetwork/sdk';
 
-// ── Direct contract read ABI (correct full struct including string field) ──────
+// ── Contract ABIs ─────────────────────────────────────────────────────────────
 const TASK_REGISTRY_ADDRESS = '0xD15530ce13188EE88E43Ab07EDD9E8729fCc55D0';
 const TASK_REGISTRY_READ_ABI = [
   'function taskCount() view returns (uint256)',
   'function tasks(uint256 taskId) view returns (uint256 id, address requester, bytes32 modelHash, bytes32 inputHash, string modelRequirements, uint256 rewardPerNode, uint256 requiredNodes, uint256 claimedCount, uint256 submittedCount, uint256 deadline, uint8 status, uint8 consensusType, uint256 createdAt, bytes32 consensusResult)',
+];
+const TASK_REGISTRY_WRITE_ABI = [
+  'function submitTask(bytes32 modelHash, bytes32 inputHash, string modelRequirements, uint256 rewardPerNode, uint256 requiredNodes, uint256 deadline, uint8 consensusType) payable returns (uint256)',
+  'event TaskCreated(uint256 indexed taskId, address indexed requester, bytes32 modelHash, uint256 rewardPerNode, uint256 requiredNodes, uint8 consensusType)',
 ];
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -320,21 +324,47 @@ async function main() {
     }
 
     try {
-      const result = await client.submitTaskWithData(
-        modelData,
-        inputData,
+      // Upload model and input data to IPFS
+      const [modelCid, inputCid] = await Promise.all([
+        client.storage.upload(modelData),
+        client.storage.upload(inputData),
+      ]);
+      const modelHash = cidToBytes32(modelCid);
+      const inputHash = cidToBytes32(inputCid);
+
+      log(`  Model CID: ${modelCid}`);
+      log(`  Input CID: ${inputCid}`);
+
+      // Submit directly with template.name as modelRequirements so the dashboard can display it
+      const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+      const contract = new ethers.Contract(TASK_REGISTRY_ADDRESS, TASK_REGISTRY_WRITE_ABI, signer);
+      const totalReward = reward * BigInt(template.requiredNodes);
+      const tx = await contract.submitTask(
+        modelHash,
+        inputHash,
+        template.name,           // stored on-chain in calldata for dashboard display
         reward,
         template.requiredNodes,
         deadline,
-        template.consensusType
+        template.consensusType,
+        { value: totalReward }
       );
+      const receipt = await tx.wait();
 
-      log(`  Task ID: ${result.taskId}`);
-      log(`  Tx: ${result.tx.hash}`);
-      log(`  Model CID: ${result.modelCid}`);
-      log(`  Input CID: ${result.inputCid}`);
+      // Extract taskId from TaskCreated event
+      const iface = new ethers.Interface(TASK_REGISTRY_WRITE_ABI);
+      let taskId = '?';
+      for (const log2 of receipt.logs) {
+        try {
+          const parsed = iface.parseLog(log2);
+          if (parsed?.name === 'TaskCreated') { taskId = parsed.args.taskId.toString(); break; }
+        } catch { /* skip */ }
+      }
 
-      submitted.push({ name: template.name, taskId: result.taskId, tx: result.tx.hash });
+      log(`  Task ID: ${taskId}`);
+      log(`  Tx: ${tx.hash}`);
+
+      submitted.push({ name: template.name, taskId, tx: tx.hash });
     } catch (err) {
       log(`  ERROR submitting ${template.name}: ${err.message}`);
     }
