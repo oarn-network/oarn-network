@@ -43,5 +43,5 @@ jobs:
       - name: Post weekly summary to Discord
         run: node scripts/discord-snapshot.mjs
         env:
-          # Posts to #announcements — use DISCORD_WEBHOOK_ANNOUNCEMENTS (separate channel from task alerts)
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_ANNOUNCEMENTS }}
+        # Posts to #node-ops-leaderboard — uses WEB_HOOK_TASKS secret
+        DISCORD_WEBHOOK: ${{ secrets.WEB_HOOK_TASKS }}
