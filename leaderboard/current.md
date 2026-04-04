@@ -1,14 +1,27 @@
 # OARN Testnet Leaderboard
 
-**Last snapshot:** 2026-03-29 | **Snapshot #3**
+**Last snapshot:** 2026-04-04 | **Snapshot #4**
 
 > Points convert to mainnet GOV tokens at TGE (Q3 2026).
 > [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://docs.google.com/forms/d/e/1FAIpQLSdyc2YQtXmJAhXSbg0wQd03Tb6X5KjreBokjzxswXwSaGi3tQ/viewform) | [Rewards program details →](../docs/testnet-rewards-program.md)
 
-*No on-chain activity recorded yet.*
+## Rankings
 
-Run a node and complete tasks to appear on this leaderboard.
-[How to run a node →](https://github.com/oarn-network/oarn-node)
+| Rank | Wallet | Total Points | Tier | Tasks ✓ | Funded | Referrals |
+|-----:|--------|-------------:|------|--------:|-------:|----------:|
+| 1 | `0xc86e...fdfb` | 225 | Genesis ⭐ | 15 | 0 | 0 |
+| 2 | `0x7379...382e` | 225 | Genesis ⭐ | 15 | 0 | 0 |
+| 3 | `0x8e2b...3a0d` | 225 | Genesis ⭐ | 15 | 0 | 0 |
+
+## Tier Summary
+
+| Tier | Min Points | GOV Allocation | Operators |
+|------|------------|----------------|-----------|
+| Genesis ⭐ | Top 10 | 250,000 GOV each | 3 |
+| Platinum | 10,000 | 100,000 GOV | 0 |
+| Gold | 2,500 | 25,000 GOV | 0 |
+| Silver | 500 | 5,000 GOV | 0 |
+| Bronze | 100 | 1,000 GOV | 0 |
 
 ---
 
