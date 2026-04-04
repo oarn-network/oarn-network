@@ -244,6 +244,9 @@ if [[ -d "${SCRIPT_DIR}/api" ]]; then
   sudo -u oarn bash -c "cd $API_DIR && npm install --silent"
 fi
 
+# Install pm2 dependency for Discord alerter
+npm install --prefix "${OARN_HOME}" pm2 --save --quiet 2>/dev/null || true
+
 # PM2 ecosystem config
 cat > "${OARN_HOME}/ecosystem.config.js" << EOF
 module.exports = {
@@ -259,6 +262,17 @@ module.exports = {
       max_memory_restart: '512M',
       log_file: '/var/log/oarn/api.log',
       error_file: '/var/log/oarn/api.error.log',
+    },
+    {
+      name: 'oarn-alert',
+      script: '${OARN_HOME}/scripts/server/pm2-discord-alert.js',
+      env_file: '${OARN_CONFIG}/.env',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '64M',
+      log_file: '/var/log/oarn/alert.log',
+      error_file: '/var/log/oarn/alert.error.log',
     }
   ]
 };
@@ -292,6 +306,9 @@ GOVERNANCE=0x_GOVERNANCE_ADDRESS_HERE
 
 # IPFS
 IPFS_API=http://localhost:5001
+
+# Alerting
+DISCORD_ALERT_WEBHOOK=https://discord.com/api/webhooks/YOUR_WEBHOOK_HERE
 
 # Loaded from db.env automatically — no need to copy here
 EOF

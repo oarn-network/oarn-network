@@ -86,6 +86,8 @@ nano /etc/oarn/.env
 
 Set:
 - `NODE_PRIVATE_KEY=0x...`  ← your node wallet private key
+- `DISCORD_ALERT_WEBHOOK=https://discord.com/api/webhooks/...` ← Discord #alerts webhook URL
+  (Discord → Server Settings → Integrations → Webhooks → New Webhook → #alerts → Copy URL)
 - Everything else is pre-filled with correct contract addresses
 
 ---
@@ -120,6 +122,44 @@ nginx -t && systemctl status nginx
 
 ---
 
+## Adding Discord crash alerting to an existing server
+
+Run this on the Hetzner server (as root or oarn user):
+
+```bash
+# 1. Pull latest code
+cd /opt/oarn/oarn-network && git pull
+
+# 2. Set the webhook in .env
+nano /etc/oarn/.env
+# Add: DISCORD_ALERT_WEBHOOK=https://discord.com/api/webhooks/...
+
+# 3. Install the pm2 npm package (needed by the alerter script)
+sudo -u oarn npm install --prefix /home/oarn pm2 --save
+
+# 4. Add oarn-alert to the ecosystem and (re)start
+sudo -u oarn pm2 start /home/oarn/ecosystem.config.js
+sudo -u oarn pm2 save
+
+# 5. Verify it connected
+sudo -u oarn pm2 logs oarn-alert --lines 10
+```
+
+Expected log output:
+```
+[alert] Connected to PM2 daemon
+[alert] Watching: oarn-api, oarn-node-1, oarn-node-2, oarn-node-3
+```
+
+To test manually (kills oarn-api for 1 restart, PM2 auto-recovers):
+```bash
+sudo -u oarn pm2 stop oarn-api
+# → Discord #alerts should receive an embed within ~2 seconds
+sudo -u oarn pm2 start oarn-api
+```
+
+---
+
 ## Checklist
 
 - [ ] Server provisioned (Hetzner email received)
@@ -127,6 +167,7 @@ nginx -t && systemctl status nginx
 - [ ] installimage complete (Ubuntu 24.04, RAID 1)
 - [ ] SSH key login works (no password)
 - [ ] setup.sh ran successfully
-- [ ] /etc/oarn/.env filled in
+- [ ] /etc/oarn/.env filled in (NODE_PRIVATE_KEY + DISCORD_ALERT_WEBHOOK)
 - [ ] Services started (pm2, ipfs, nginx)
 - [ ] `curl http://<SERVER_IP>/health` returns `{"status":"ok"}`
+- [ ] `pm2 logs oarn-alert` shows "Connected to PM2 daemon"
