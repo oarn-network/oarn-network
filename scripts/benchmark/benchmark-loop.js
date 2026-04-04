@@ -56,25 +56,35 @@ const ABI = [
  * Mirrors cidToBytes32() in oarn-sdk/src/utils.ts.
  */
 function cidToBytes32(cidStr) {
-  // CIDv1 with raw codec: multihash = [0x12, 0x20, ...32 bytes SHA-256]
-  // We decode the base32 CID and extract the 32-byte digest.
-  // Using manual base32 decode since we can't import the CID library here.
-  //
-  // Strategy: use ipfs cat via the IPFS CLI to get the raw bytes,
-  // OR pre-compute the bytes32 during setup.js and store in registry.
-  // Since registry already has the CID, we reconstruct via multihash.
+  // Handles both CIDv0 (Qm... base58) and CIDv1 (b... base32).
+  // Both encode a SHA-256 multihash: [0x12][0x20][32-byte digest].
+  // We extract just the 32-byte digest as a bytes32 value.
 
-  // CIDv1 base32: strip "b" prefix, decode base32, skip varint headers
-  // Format after CID header: [version=1][codec=0x55][multihash...]
-  // multihash for SHA2-256: [0x12][0x20][32 bytes digest]
+  if (cidStr.startsWith("Qm") || cidStr.startsWith("1")) {
+    // CIDv0 — base58-encoded multihash (no version/codec prefix)
+    // Multihash layout: [0x12 hashfn][0x20 digestlen][32 bytes digest]
+    const BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    let num = BigInt(0);
+    for (const c of cidStr) {
+      const digit = BASE58.indexOf(c);
+      if (digit === -1) throw new Error(`cidToBytes32: invalid base58 char '${c}' in CID ${cidStr}`);
+      num = num * BigInt(58) + BigInt(digit);
+    }
+    // Convert BigInt to 34-byte buffer (2 multihash header bytes + 32 digest bytes)
+    const hex = num.toString(16).padStart(68, "0"); // 34 bytes = 68 hex chars
+    const digest = hex.slice(4); // skip 0x12 + 0x20 (2 bytes = 4 hex chars)
+    if (digest.length !== 64) {
+      throw new Error(`cidToBytes32: expected 32-byte digest, got ${digest.length / 2} from CID ${cidStr}`);
+    }
+    return "0x" + digest;
+  }
+
+  // CIDv1 base32: "b" multibase prefix + base32-encoded [version][codec][multihash]
   const base32Chars = "abcdefghijklmnopqrstuvwxyz234567";
-
   let cidBody = cidStr.toLowerCase();
-  if (cidBody.startsWith("b")) cidBody = cidBody.slice(1); // strip multibase prefix
+  if (cidBody.startsWith("b")) cidBody = cidBody.slice(1);
 
-  // Decode base32
-  let bits = 0;
-  let bitsCount = 0;
+  let bits = 0, bitsCount = 0;
   const bytes = [];
   for (const c of cidBody) {
     const val = base32Chars.indexOf(c);
@@ -87,23 +97,18 @@ function cidToBytes32(cidStr) {
     }
   }
 
-  // CID binary: [version varint][codec varint][multihash...]
-  // Skip version (1 byte = 0x01) and codec (1-2 bytes)
+  // Skip version varint, codec varint, then hashfn + digestlen (2 bytes)
   let offset = 0;
-  // Read version varint
   while (bytes[offset] & 0x80) offset++;
-  offset++; // last byte of version varint
-  // Read codec varint
+  offset++;
   while (bytes[offset] & 0x80) offset++;
-  offset++; // last byte of codec varint
-  // Now at multihash: [hashfn][digestlen][digest...]
-  offset += 2; // skip hashfn (0x12) and digestlen (0x20)
+  offset++;
+  offset += 2;
 
   const digest = bytes.slice(offset, offset + 32);
   if (digest.length !== 32) {
     throw new Error(`cidToBytes32: expected 32-byte digest, got ${digest.length} from CID ${cidStr}`);
   }
-
   return "0x" + Buffer.from(digest).toString("hex");
 }
 
