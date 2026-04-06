@@ -33,7 +33,7 @@ const TASKS_PER_RUN     = parseInt(process.env.TASKS_PER_RUN     || "3");
 const REWARD_ETH        = process.env.REWARD_PER_NODE_ETH        || "0.0001";
 const REQUIRED_NODES    = parseInt(process.env.REQUIRED_NODES    || "2");
 const DEADLINE_HOURS    = parseInt(process.env.DEADLINE_HOURS    || "2");
-const CONTRACT_ADDRESS  = "0xD15530ce13188EE88E43Ab07EDD9E8729fCc55D0";
+const CONTRACT_ADDRESS  = "0x10ffe4d0491112d92Fe7BE4c9Eabe486DC221159";
 const REGISTRY_PATH     = path.join(__dirname, "model-registry.json");
 const LOG_PATH          = path.join(__dirname, "run.log");
 

@@ -19,7 +19,7 @@ import { ethers } from 'ethers';
 import { OARNClient, ConsensusType, parseTokenAmount, cidToBytes32 } from '@oarnnetwork/sdk';
 
 // ── Contract ABIs ─────────────────────────────────────────────────────────────
-const TASK_REGISTRY_ADDRESS = '0xD15530ce13188EE88E43Ab07EDD9E8729fCc55D0';
+const TASK_REGISTRY_ADDRESS = '0x10ffe4d0491112d92Fe7BE4c9Eabe486DC221159';
 const TASK_REGISTRY_READ_ABI = [
   'function taskCount() view returns (uint256)',
   'function tasks(uint256 taskId) view returns (uint256 id, address requester, bytes32 modelHash, bytes32 inputHash, string modelRequirements, uint256 rewardPerNode, uint256 requiredNodes, uint256 claimedCount, uint256 submittedCount, uint256 deadline, uint8 status, uint8 consensusType, uint256 createdAt, bytes32 consensusResult)',
