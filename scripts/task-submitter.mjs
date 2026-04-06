@@ -212,9 +212,13 @@ async function main() {
     log(`Wallet: ${signer.address}`);
     log(`ETH balance: ${ethers.formatEther(balance)} ETH`);
 
-    const minNeeded = ethers.parseEther(REWARD_ETH) * BigInt(REQUIRED_NODES) * BigInt(MAX_SUBMIT);
-    if (balance < minNeeded) {
-      log(`Warning: balance ${ethers.formatEther(balance)} ETH may be insufficient for ${MAX_SUBMIT} tasks`);
+    const costPerTask = ethers.parseEther(REWARD_ETH) * BigInt(REQUIRED_NODES);
+    if (balance < costPerTask) {
+      console.error(`Error: balance ${ethers.formatEther(balance)} ETH is below cost of one task (${ethers.formatEther(costPerTask)} ETH). Fund wallet and retry.`);
+      process.exit(1);
+    }
+    if (balance < costPerTask * BigInt(MAX_SUBMIT)) {
+      log(`Warning: balance only covers ${Number(balance / costPerTask)} task(s) (wanted ${MAX_SUBMIT})`);
     }
   }
 
