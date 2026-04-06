@@ -32,8 +32,8 @@ jobs:
           BENCHMARK_PRIVATE_KEY: ${{ secrets.BENCHMARK_PRIVATE_KEY }}
           RPC_URL: ${{ secrets.RPC_URL || 'https://sepolia-rollup.arbitrum.io/rpc' }}
           TASKS_PER_RUN: ${{ github.event.inputs.tasks_per_run || '3' }}
-          REWARD_PER_NODE_ETH: '0.0001'
-          REQUIRED_NODES: '2'
+          REWARD_PER_NODE_ETH: '0.001'
+          REQUIRED_NODES: '3'
           DEADLINE_HOURS: '4'
         run: node scripts/benchmark/benchmark-loop.js
 

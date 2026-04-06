@@ -2,7 +2,10 @@
  * OARN Continuous Task Submitter
  *
  * Keeps TaskRegistryV2 populated with open tasks so node operators
- * always have work to claim. Run via GitHub Actions schedule or manually.
+ * always have work to claim. Submits tasks using real IPFS-pinned
+ * ONNX models from model-registry.json with properly-shaped inputs.
+ *
+ * Run via GitHub Actions schedule or manually.
  *
  * Usage:
  *   SUBMITTER_PRIVATE_KEY=0x... node scripts/task-submitter.mjs
@@ -16,10 +19,17 @@
  */
 
 import { ethers } from 'ethers';
-import { OARNClient, ConsensusType, parseTokenAmount, cidToBytes32 } from '@oarnnetwork/sdk';
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// ── Contract ABIs ─────────────────────────────────────────────────────────────
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// ── Contract config ───────────────────────────────────────────────────────────
 const TASK_REGISTRY_ADDRESS = '0x10ffe4d0491112d92Fe7BE4c9Eabe486DC221159';
+const IPFS_API_URL          = process.env.IPFS_API_URL || 'http://127.0.0.1:5001';
+
 const TASK_REGISTRY_READ_ABI = [
   'function taskCount() view returns (uint256)',
   'function tasks(uint256 taskId) view returns (uint256 id, address requester, bytes32 modelHash, bytes32 inputHash, string modelRequirements, uint256 rewardPerNode, uint256 requiredNodes, uint256 claimedCount, uint256 submittedCount, uint256 deadline, uint8 status, uint8 consensusType, uint256 createdAt, bytes32 consensusResult)',
@@ -30,185 +40,40 @@ const TASK_REGISTRY_WRITE_ABI = [
 ];
 
 // ── Config ────────────────────────────────────────────────────────────────────
+const PRIVATE_KEY     = process.env.SUBMITTER_PRIVATE_KEY;
+const RPC_URL         = process.env.RPC_URL || 'https://sepolia-rollup.arbitrum.io/rpc';
+const MIN_OPEN_TASKS  = parseInt(process.env.MIN_OPEN_TASKS || '3', 10);
+const MAX_SUBMIT      = 3;
+const CHECK_LAST_N    = 30;
+const DEADLINE_HOURS  = 48;
+const REQUIRED_NODES  = 3;     // minimum for consensus; all 3+ fleet nodes will compete to claim
+const REWARD_ETH      = '0.001'; // meets minRewardPerNode on TaskRegistryV2
+const DRY_RUN         = process.env.DRY_RUN === 'true';
+const DISCORD_WEBHOOK = process.env.DISCORD_WEBHOOK || null;
 
-const PRIVATE_KEY       = process.env.SUBMITTER_PRIVATE_KEY;
-const RPC_URL           = process.env.RPC_URL || 'https://sepolia-rollup.arbitrum.io/rpc';
-const MIN_OPEN_TASKS    = parseInt(process.env.MIN_OPEN_TASKS || '3', 10);
-const MAX_SUBMIT        = 3;           // Max tasks to submit in one run
-const CHECK_LAST_N      = 30;         // How many recent tasks to scan for open ones
-const DEADLINE_HOURS    = 48;         // Task deadline from now
-const DRY_RUN           = process.env.DRY_RUN === 'true';
-const DISCORD_WEBHOOK   = process.env.DISCORD_WEBHOOK || null;
+// ── Real ONNX models pinned on IPFS ──────────────────────────────────────────
+// These are the 3 models uploaded during task #106 (benchmark setup).
+// CIDs are stable — models are pinned on the server's IPFS node.
+const REGISTRY_PATH = path.join(__dirname, 'benchmark', 'model-registry.json');
 
-// ── Task Library ──────────────────────────────────────────────────────────────
-// Diverse testnet tasks. Nodes execute these and must reach consensus.
-// Models are JSON descriptors (placeholder mode) — real ONNX models via Task #61.
-
-const TASK_LIBRARY = [
-  {
-    id: 'protein-folding-v1',
-    name: 'Protein Folding Parameter Sweep',
-    category: 'structural-biology',
-    model: {
-      name: 'protein-stability-predictor',
-      version: '0.1.0',
-      type: 'regression',
-      framework: 'onnx',
-      inputs: ['temperature_C', 'pH', 'salt_mM'],
-      outputs: ['stability_kcal_mol', 'folding_rate_s'],
-    },
-    inputs: {
-      batch_mode: true,
-      description: 'Sweep fermentation parameters for optimal protein folding stability',
-      combinations: [
-        { temperature_C: 25, pH: 7.0, salt_mM: 150 },
-        { temperature_C: 30, pH: 7.2, salt_mM: 100 },
-        { temperature_C: 37, pH: 6.8, salt_mM: 200 },
-        { temperature_C: 37, pH: 7.4, salt_mM: 150 },
-        { temperature_C: 42, pH: 7.0, salt_mM: 50  },
-      ],
-    },
-    requiredNodes: 3,
-    consensusType: ConsensusType.Majority,
-    rewardEth: '0.001',
-  },
-  {
-    id: 'enzyme-kinetics-v1',
-    name: 'Enzyme Kinetics Optimization',
-    category: 'biochemistry',
-    model: {
-      name: 'enzyme-kinetics-predictor',
-      version: '0.1.0',
-      type: 'regression',
-      framework: 'onnx',
-      inputs: ['substrate_mM', 'inhibitor_uM', 'temperature_C', 'pH'],
-      outputs: ['Vmax', 'Km', 'kcat'],
-    },
-    inputs: {
-      batch_mode: true,
-      description: 'Michaelis-Menten kinetics across substrate and inhibitor concentrations',
-      combinations: [
-        { substrate_mM: 0.5,  inhibitor_uM: 0,   temperature_C: 37, pH: 7.4 },
-        { substrate_mM: 1.0,  inhibitor_uM: 0,   temperature_C: 37, pH: 7.4 },
-        { substrate_mM: 2.0,  inhibitor_uM: 10,  temperature_C: 37, pH: 7.4 },
-        { substrate_mM: 5.0,  inhibitor_uM: 10,  temperature_C: 37, pH: 7.0 },
-        { substrate_mM: 10.0, inhibitor_uM: 50,  temperature_C: 37, pH: 7.4 },
-        { substrate_mM: 20.0, inhibitor_uM: 100, temperature_C: 37, pH: 7.4 },
-      ],
-    },
-    requiredNodes: 3,
-    consensusType: ConsensusType.Majority,
-    rewardEth: '0.001',
-  },
-  {
-    id: 'drug-binding-v1',
-    name: 'Drug Binding Affinity Screen',
-    category: 'computational-chemistry',
-    model: {
-      name: 'binding-affinity-predictor',
-      version: '0.1.0',
-      type: 'regression',
-      framework: 'onnx',
-      inputs: ['molecular_weight', 'logP', 'hbd', 'hba', 'tpsa'],
-      outputs: ['binding_affinity_nM', 'selectivity_score'],
-    },
-    inputs: {
-      batch_mode: true,
-      description: 'Lipinski rule-of-five screen for drug-like binding candidates',
-      combinations: [
-        { molecular_weight: 280, logP: 1.2, hbd: 2, hba: 4, tpsa: 65  },
-        { molecular_weight: 320, logP: 2.1, hbd: 1, hba: 5, tpsa: 72  },
-        { molecular_weight: 380, logP: 3.4, hbd: 2, hba: 6, tpsa: 88  },
-        { molecular_weight: 420, logP: 2.8, hbd: 3, hba: 7, tpsa: 101 },
-        { molecular_weight: 450, logP: 4.1, hbd: 1, hba: 8, tpsa: 110 },
-        { molecular_weight: 490, logP: 3.0, hbd: 2, hba: 9, tpsa: 120 },
-      ],
-    },
-    requiredNodes: 3,
-    consensusType: ConsensusType.SuperMajority,
-    rewardEth: '0.002',
-  },
-  {
-    id: 'metabolic-pathway-v1',
-    name: 'Metabolic Pathway Flux Analysis',
-    category: 'systems-biology',
-    model: {
-      name: 'flux-balance-analyzer',
-      version: '0.1.0',
-      type: 'optimization',
-      framework: 'onnx',
-      inputs: ['glucose_uptake_mmol_gDW_h', 'oxygen_uptake_mmol_gDW_h', 'growth_rate_h'],
-      outputs: ['atp_yield', 'nadh_yield', 'biomass_flux'],
-    },
-    inputs: {
-      batch_mode: true,
-      description: 'Flux balance analysis across growth conditions for E. coli central metabolism',
-      combinations: [
-        { glucose_uptake_mmol_gDW_h: 10, oxygen_uptake_mmol_gDW_h: 15, growth_rate_h: 0.4 },
-        { glucose_uptake_mmol_gDW_h: 15, oxygen_uptake_mmol_gDW_h: 20, growth_rate_h: 0.6 },
-        { glucose_uptake_mmol_gDW_h: 20, oxygen_uptake_mmol_gDW_h: 0,  growth_rate_h: 0.3 },
-        { glucose_uptake_mmol_gDW_h: 8,  oxygen_uptake_mmol_gDW_h: 12, growth_rate_h: 0.35 },
-      ],
-    },
-    requiredNodes: 3,
-    consensusType: ConsensusType.Unanimous,
-    rewardEth: '0.002',
-  },
-  {
-    id: 'catalyst-selectivity-v1',
-    name: 'Catalyst Selectivity Screening',
-    category: 'green-chemistry',
-    model: {
-      name: 'catalyst-selectivity-predictor',
-      version: '0.1.0',
-      type: 'classification',
-      framework: 'onnx',
-      inputs: ['temperature_C', 'pressure_bar', 'H2_ratio', 'CO2_ratio', 'residence_time_s'],
-      outputs: ['methanol_selectivity', 'co_selectivity', 'conversion_rate'],
-    },
-    inputs: {
-      batch_mode: true,
-      description: 'CO2 hydrogenation catalyst parameter optimization for green methanol synthesis',
-      combinations: [
-        { temperature_C: 200, pressure_bar: 20, H2_ratio: 3.0, CO2_ratio: 1.0, residence_time_s: 2.0 },
-        { temperature_C: 240, pressure_bar: 30, H2_ratio: 3.5, CO2_ratio: 1.0, residence_time_s: 1.5 },
-        { temperature_C: 260, pressure_bar: 40, H2_ratio: 4.0, CO2_ratio: 1.0, residence_time_s: 1.0 },
-        { temperature_C: 280, pressure_bar: 50, H2_ratio: 3.0, CO2_ratio: 0.8, residence_time_s: 0.8 },
-        { temperature_C: 300, pressure_bar: 60, H2_ratio: 3.5, CO2_ratio: 0.5, residence_time_s: 0.5 },
-      ],
-    },
-    requiredNodes: 3,
-    consensusType: ConsensusType.Majority,
-    rewardEth: '0.001',
-  },
-  {
-    id: 'gene-expression-v1',
-    name: 'Gene Expression Regulation Sweep',
-    category: 'genomics',
-    model: {
-      name: 'gene-expression-predictor',
-      version: '0.1.0',
-      type: 'regression',
-      framework: 'onnx',
-      inputs: ['inducer_concentration_uM', 'growth_phase', 'temperature_C', 'media_pH'],
-      outputs: ['expression_level_au', 'protein_yield_mg_L'],
-    },
-    inputs: {
-      batch_mode: true,
-      description: 'IPTG-induced protein expression optimization across growth conditions',
-      combinations: [
-        { inducer_concentration_uM: 50,  growth_phase: 0.4, temperature_C: 37, media_pH: 7.0 },
-        { inducer_concentration_uM: 100, growth_phase: 0.5, temperature_C: 37, media_pH: 7.2 },
-        { inducer_concentration_uM: 250, growth_phase: 0.5, temperature_C: 30, media_pH: 7.0 },
-        { inducer_concentration_uM: 500, growth_phase: 0.6, temperature_C: 25, media_pH: 7.4 },
-        { inducer_concentration_uM: 1000, growth_phase: 0.6, temperature_C: 30, media_pH: 7.2 },
-      ],
-    },
-    requiredNodes: 3,
-    consensusType: ConsensusType.SuperMajority,
-    rewardEth: '0.002',
-  },
-];
+// Task descriptions paired to each model for research context
+const TASK_DESCRIPTIONS = {
+  iris_classifier: [
+    { name: 'Protein Class Prediction — parameter sweep A', category: 'structural-biology' },
+    { name: 'Protein Class Prediction — parameter sweep B', category: 'structural-biology' },
+    { name: 'Biomarker Classification — sample batch A',    category: 'genomics' },
+  ],
+  linear_regression: [
+    { name: 'Enzyme Kinetics Regression — substrate sweep', category: 'biochemistry' },
+    { name: 'Drug Binding Affinity Estimation — batch A',   category: 'computational-chemistry' },
+    { name: 'Metabolic Flux Prediction — growth conditions', category: 'systems-biology' },
+  ],
+  mnist_mini: [
+    { name: 'Gel Electrophoresis Band Classifier — run A',  category: 'molecular-biology' },
+    { name: 'Microscopy Image Feature Extraction — batch A', category: 'cell-biology' },
+    { name: 'Spectrogram Pattern Recognition — sweep A',    category: 'analytical-chemistry' },
+  ],
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -220,30 +85,84 @@ function formatEth(wei) {
   return (Number(wei) / 1e18).toFixed(6);
 }
 
+/**
+ * Convert IPFS CIDv0 (Qm...) to bytes32 (raw SHA-256 multihash digest).
+ * Mirrors cidToBytes32() in oarn-sdk and benchmark-loop.js.
+ */
+function cidToBytes32(cidStr) {
+  const BASE58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let num = BigInt(0);
+  for (const c of cidStr) {
+    const digit = BASE58.indexOf(c);
+    if (digit === -1) throw new Error(`cidToBytes32: invalid base58 char '${c}'`);
+    num = num * BigInt(58) + BigInt(digit);
+  }
+  const hex = num.toString(16).padStart(68, '0');
+  const digest = hex.slice(4); // skip 0x12 + 0x20 multihash header
+  if (digest.length !== 64) throw new Error(`cidToBytes32: bad digest length from ${cidStr}`);
+  return '0x' + digest;
+}
+
+/**
+ * Generate a random float array shaped for the model and return
+ * { inputJson, inputBytes } ready for IPFS upload.
+ */
+function makeInput(model) {
+  const size = model.inputSize;
+  const values = Array.from({ length: size }, () =>
+    parseFloat((Math.random() * 2 - 1).toFixed(4))
+  );
+  const inputJson = JSON.stringify({
+    input: values,
+    shape: model.inputShape,
+    model: model.label,
+    generated_at: new Date().toISOString(),
+  });
+  return inputJson;
+}
+
+/**
+ * Upload data to local IPFS and return CIDv0.
+ */
+async function ipfsAdd(content) {
+  const boundary = '---oarntaskboundary';
+  const body = [
+    `--${boundary}`,
+    'Content-Disposition: form-data; name="file"; filename="data"',
+    'Content-Type: application/octet-stream',
+    '',
+    content,
+    `--${boundary}--`,
+  ].join('\r\n');
+
+  const res = await fetch(`${IPFS_API_URL}/api/v0/add?pin=true`, {
+    method: 'POST',
+    headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` },
+    body,
+  });
+
+  if (!res.ok) throw new Error(`IPFS add failed: ${res.status} ${await res.text()}`);
+  const json = await res.json();
+  return json.Hash; // CIDv0
+}
+
 async function countOpenTasks(provider) {
   const contract = new ethers.Contract(TASK_REGISTRY_ADDRESS, TASK_REGISTRY_READ_ABI, provider);
   const total = Number(await contract.taskCount());
   if (total === 0) return 0;
 
   const now = Math.floor(Date.now() / 1000);
-  // Task IDs are 1-based; scan the last CHECK_LAST_N tasks
   const startId = Math.max(1, total - CHECK_LAST_N + 1);
   let open = 0;
 
   for (let id = startId; id <= total; id++) {
     try {
       const task = await contract.tasks(id);
-      // status 0 = Pending, 1 = Active; deadline must be in future
       const status = Number(task.status);
       const deadline = Number(task.deadline);
-      if ((status === 0 || status === 1) && deadline > now) {
-        open++;
-      }
-    } catch {
-      // Task may not exist or be inaccessible — skip
-    }
+      if ((status === 0 || status === 1) && deadline > now) open++;
+    } catch { /* skip */ }
   }
-
   return open;
 }
 
@@ -267,26 +186,38 @@ async function main() {
   log(`Mode: ${DRY_RUN ? 'DRY RUN' : 'LIVE'}`);
   log(`Min open tasks: ${MIN_OPEN_TASKS}`);
 
-  if (!PRIVATE_KEY) {
+  if (!PRIVATE_KEY && !DRY_RUN) {
     console.error('Error: SUBMITTER_PRIVATE_KEY env var is required');
     process.exit(1);
   }
 
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
-  const client = new OARNClient({ privateKey: PRIVATE_KEY, rpcUrl: RPC_URL });
-  const wallet = client.getAddress();
-  log(`Wallet: ${wallet}`);
-
-  // Check balance
-  const balance = await client.getBalance(wallet);
-  log(`ETH balance: ${formatEth(balance.eth)}`);
-
-  if (balance.eth < parseTokenAmount('0.01') && !DRY_RUN) {
-    console.error('Error: Wallet has less than 0.01 ETH — fund it at the Arbitrum Sepolia faucet');
+  // Load real model registry
+  if (!fs.existsSync(REGISTRY_PATH)) {
+    console.error(`Error: model-registry.json not found at ${REGISTRY_PATH}`);
+    console.error('Run: node scripts/benchmark/setup.js');
     process.exit(1);
   }
+  const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
+  if (!registry.models?.length) {
+    console.error('Error: model-registry.json has no models');
+    process.exit(1);
+  }
+  log(`Loaded ${registry.models.length} real ONNX models from registry`);
 
-  // Check how many open tasks exist (use direct RPC with correct ABI)
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const signer   = DRY_RUN ? null : new ethers.Wallet(PRIVATE_KEY, provider);
+
+  if (!DRY_RUN) {
+    const balance = await provider.getBalance(signer.address);
+    log(`Wallet: ${signer.address}`);
+    log(`ETH balance: ${ethers.formatEther(balance)} ETH`);
+
+    const minNeeded = ethers.parseEther(REWARD_ETH) * BigInt(REQUIRED_NODES) * BigInt(MAX_SUBMIT);
+    if (balance < minNeeded) {
+      log(`Warning: balance ${ethers.formatEther(balance)} ETH may be insufficient for ${MAX_SUBMIT} tasks`);
+    }
+  }
+
   const registryContract = new ethers.Contract(TASK_REGISTRY_ADDRESS, TASK_REGISTRY_READ_ABI, provider);
   const total = Number(await registryContract.taskCount());
   log(`Total tasks on-chain: ${total}`);
@@ -300,91 +231,82 @@ async function main() {
   }
 
   const toSubmit = Math.min(MIN_OPEN_TASKS - openCount, MAX_SUBMIT);
-  log(`Submitting ${toSubmit} new task(s)...`);
+  log(`Submitting ${toSubmit} new task(s) with real ONNX models...`);
 
-  const deadline = Math.floor(Date.now() / 1000) + DEADLINE_HOURS * 3600;
+  const deadline  = Math.floor(Date.now() / 1000) + DEADLINE_HOURS * 3600;
+  const reward    = ethers.parseEther(REWARD_ETH);
+  const totalCost = reward * BigInt(REQUIRED_NODES);
   const submitted = [];
 
   for (let i = 0; i < toSubmit; i++) {
-    // Cycle through task library
-    const template = TASK_LIBRARY[(total + i) % TASK_LIBRARY.length];
-    const modelData = JSON.stringify(template.model, null, 2);
-    const inputData = JSON.stringify(template.inputs, null, 2);
-    const reward = parseTokenAmount(template.rewardEth);
+    // Cycle through models round-robin
+    const model = registry.models[(total + i) % registry.models.length];
+    const descriptions = TASK_DESCRIPTIONS[model.label] || [
+      { name: `${model.description} — run ${i + 1}`, category: 'general' },
+    ];
+    const desc = descriptions[(total + i) % descriptions.length];
 
-    log(`[${i + 1}/${toSubmit}] Submitting: ${template.name}`);
-    log(`  Category: ${template.category}`);
-    log(`  Nodes: ${template.requiredNodes} | Consensus: ${ConsensusType[template.consensusType]} | Reward: ${template.rewardEth} ETH/node`);
-    log(`  Inputs: ${template.inputs.combinations.length} parameter combinations`);
+    log(`[${i + 1}/${toSubmit}] ${desc.name}`);
+    log(`  Model: ${model.label} (CID: ${model.cid})`);
+    log(`  Input size: ${model.inputSize} floats | Nodes: ${REQUIRED_NODES} | Reward: ${REWARD_ETH} ETH/node`);
 
     if (DRY_RUN) {
-      log('  [DRY RUN] Skipping actual submission');
-      submitted.push({ name: template.name, taskId: 'DRY_RUN' });
+      log('  [DRY RUN] skipping submission');
+      submitted.push({ name: desc.name, taskId: 'dry-run' });
       continue;
     }
 
     try {
-      // Upload model and input data to IPFS
-      const [modelCid, inputCid] = await Promise.all([
-        client.storage.upload(modelData),
-        client.storage.upload(inputData),
-      ]);
-      const modelHash = cidToBytes32(modelCid);
-      const inputHash = cidToBytes32(inputCid);
+      // modelHash — from pre-pinned ONNX CID (nodes can fetch and run this)
+      const modelHash = cidToBytes32(model.cid);
 
-      log(`  Model CID: ${modelCid}`);
+      // inputHash — upload fresh random inputs shaped for this model
+      const inputJson = makeInput(model);
+      log(`  Uploading inputs to IPFS...`);
+      const inputCid  = await ipfsAdd(inputJson);
+      const inputHash = cidToBytes32(inputCid);
       log(`  Input CID: ${inputCid}`);
 
-      // Submit directly with template.name as modelRequirements so the dashboard can display it
-      const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+      // Submit
       const contract = new ethers.Contract(TASK_REGISTRY_ADDRESS, TASK_REGISTRY_WRITE_ABI, signer);
-      const totalReward = reward * BigInt(template.requiredNodes);
       const tx = await contract.submitTask(
         modelHash,
         inputHash,
-        template.name,           // stored on-chain in calldata for dashboard display
+        desc.name,         // stored in calldata for dashboard display
         reward,
-        template.requiredNodes,
-        deadline,
-        template.consensusType,
-        { value: totalReward }
+        BigInt(REQUIRED_NODES),
+        BigInt(deadline),
+        0,                 // ConsensusType.Majority
+        { value: totalCost }
       );
       const receipt = await tx.wait();
 
-      // Extract taskId from TaskCreated event
       const iface = new ethers.Interface(TASK_REGISTRY_WRITE_ABI);
       let taskId = '?';
-      for (const log2 of receipt.logs) {
+      for (const l of receipt.logs) {
         try {
-          const parsed = iface.parseLog(log2);
+          const parsed = iface.parseLog(l);
           if (parsed?.name === 'TaskCreated') { taskId = parsed.args.taskId.toString(); break; }
         } catch { /* skip */ }
       }
 
-      log(`  Task ID: ${taskId}`);
-      log(`  Tx: ${tx.hash}`);
-
-      submitted.push({ name: template.name, taskId, tx: tx.hash });
+      log(`  Task ID: ${taskId}  tx: ${tx.hash}`);
+      submitted.push({ name: desc.name, taskId, model: model.label });
     } catch (err) {
-      log(`  ERROR submitting ${template.name}: ${err.message}`);
+      log(`  ERROR: ${err.message?.split('\n')[0]}`);
     }
   }
 
-  // Summary
   log('');
   log(`Done. Submitted ${submitted.length} task(s).`);
-  submitted.forEach(t => log(`  - ${t.name} → Task #${t.taskId}`));
+  submitted.forEach(t => log(`  - ${t.name} → Task #${t.taskId} (${t.model})`));
 
-  // Discord notification
   if (submitted.length > 0 && !DRY_RUN) {
     const lines = submitted.map(t => `• **${t.name}** → Task #${t.taskId}`).join('\n');
     await notifyDiscord(
-      `🆕 **${submitted.length} new task(s) posted to testnet**\n${lines}\n\nClaim them → https://oarn-dashboard.vercel.app`
+      `**${submitted.length} new task(s) posted to testnet**\n${lines}\n\nClaim them → https://oarn-dashboard.vercel.app`
     );
   }
 }
 
-main().catch(err => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+main().catch(err => { console.error('Fatal:', err); process.exit(1); });
