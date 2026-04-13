@@ -1,6 +1,6 @@
 # OARN Testnet Leaderboard
 
-**Last snapshot:** 2026-04-06 | **Snapshot #5**
+**Last snapshot:** 2026-04-13 | **Snapshot #6**
 
 > Points convert to mainnet GOV tokens at TGE (Q3 2026).
 > [Register your wallet →](https://docs.google.com/forms/d/e/1FAIpQLSeOUh5Grp-ADUgS2RXd4mgbcMhv_ckb-Kf8kDrmNLBhIZhV9A/viewform) | [Referral form →](https://docs.google.com/forms/d/e/1FAIpQLSdyc2YQtXmJAhXSbg0wQd03Tb6X5KjreBokjzxswXwSaGi3tQ/viewform) | [Rewards program details →](../docs/testnet-rewards-program.md)
@@ -9,9 +9,9 @@
 
 | Rank | Wallet | Total Points | Tier | Tasks ✓ | Funded | Referrals |
 |-----:|--------|-------------:|------|--------:|-------:|----------:|
-| 1 | `0xc86e...fdfb` | 270 | Genesis ⭐ | 18 | 0 | 0 |
-| 2 | `0x7379...382e` | 270 | Genesis ⭐ | 18 | 0 | 0 |
-| 3 | `0x8e2b...3a0d` | 270 | Genesis ⭐ | 18 | 0 | 0 |
+| 1 | `0xc86e...fdfb` | 315 | Genesis ⭐ | 21 | 0 | 0 |
+| 2 | `0x7379...382e` | 315 | Genesis ⭐ | 21 | 0 | 0 |
+| 3 | `0x8e2b...3a0d` | 315 | Genesis ⭐ | 21 | 0 | 0 |
 
 ## Tier Summary
 
